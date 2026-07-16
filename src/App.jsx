@@ -1,122 +1,56 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import useAuthStore from './store/authStore'
 
-function App() {
-  const [count, setCount] = useState(0)
+import Login           from './pages/Login'
+import Register        from './pages/Register'
+import Dashboard       from './pages/Dashboard'
+import MoodLog         from './pages/MoodLog'
+import Journal         from './pages/Journal'
+import Chat            from './pages/Chat'
+import Report          from './pages/Report'
+import Clinics         from './pages/Clinics'
+import Consent         from './pages/Consent'
+import DoctorDashboard from './pages/DoctorDashboard'
 
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+function Protected({ children }) {
+  const token = useAuthStore((s) => s.token)
+  return token ? children : <Navigate to="/login" replace />
 }
 
-export default App
+function PatientOnly({ children }) {
+  const { token, role } = useAuthStore()
+  if (!token) return <Navigate to="/login" replace />
+  if (role !== 'PATIENT') return <Navigate to="/doctor/dashboard" replace />
+  return children
+}
+
+function DoctorOnly({ children }) {
+  const { token, role } = useAuthStore()
+  if (!token) return <Navigate to="/login" replace />
+  if (role !== 'DOCTOR') return <Navigate to="/patient/dashboard" replace />
+  return children
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login"    element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        <Route path="/patient/dashboard" element={<PatientOnly><Dashboard /></PatientOnly>} />
+        <Route path="/patient/mood"      element={<PatientOnly><MoodLog /></PatientOnly>} />
+        <Route path="/patient/journal"   element={<PatientOnly><Journal /></PatientOnly>} />
+        <Route path="/patient/chat"      element={<PatientOnly><Chat /></PatientOnly>} />
+        <Route path="/patient/wellness"  element={<PatientOnly><Report /></PatientOnly>} />
+        <Route path="/patient/clinics"   element={<PatientOnly><Clinics /></PatientOnly>} />
+        <Route path="/patient/consent"   element={<PatientOnly><Consent /></PatientOnly>} />
+
+        <Route path="/doctor/dashboard"  element={<DoctorOnly><DoctorDashboard /></DoctorOnly>} />
+
+        <Route path="/"  element={<Navigate to="/login" replace />} />
+        <Route path="*"  element={<Navigate to="/login" replace />} />
+      </Routes>
+    </BrowserRouter>
+  )
+}

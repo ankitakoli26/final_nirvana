@@ -33,9 +33,6 @@ export default function Login() {
 
   async function handleLogin(e) {
     e.preventDefault() 
-    Now open src/pages/Login.jsx → find handleLogin function → add demo bypass at the very top after e.preventDefault():
-
-jsx
 if (email === 'demo@test.com' && password === 'demo123') {
   localStorage.setItem('nirvana_token', 'demo123')
   localStorage.setItem('nirvana_role',  'PATIENT')

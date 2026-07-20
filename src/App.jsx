@@ -12,17 +12,20 @@ import Clinics         from './pages/Clinics'
 import Consent         from './pages/Consent'
 import DoctorDashboard from './pages/DoctorDashboard'
 
+function Protected({ children }) {
+  const token = useAuthStore((s) => s.token)
+  return token ? children : <Navigate to="/login" replace />
+}
+
 function PatientOnly({ children }) {
-  const token = localStorage.getItem('nirvana_token')
-  const role  = localStorage.getItem('nirvana_role')
+  const { token, role } = useAuthStore()
   if (!token) return <Navigate to="/login" replace />
   if (role !== 'PATIENT') return <Navigate to="/doctor/dashboard" replace />
   return children
 }
 
 function DoctorOnly({ children }) {
-  const token = localStorage.getItem('nirvana_token')
-  const role  = localStorage.getItem('nirvana_role')
+  const { token, role } = useAuthStore()
   if (!token) return <Navigate to="/login" replace />
   if (role !== 'DOCTOR') return <Navigate to="/patient/dashboard" replace />
   return children
@@ -49,7 +52,7 @@ export default function App() {
         {/* Doctor routes */}
         <Route path="/doctor/dashboard"  element={<DoctorOnly><DoctorDashboard /></DoctorOnly>} />
 
-        {/* Default */}
+        {/* Redirects */}
         <Route path="/"  element={<Navigate to="/login" replace />} />
         <Route path="*"  element={<Navigate to="/login" replace />} />
 

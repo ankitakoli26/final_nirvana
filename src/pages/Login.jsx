@@ -33,7 +33,7 @@ export default function Login() {
 
   async function handleLogin(e) {
     e.preventDefault() 
-if (email === 'demo@test.com' && password === 'demo123') {
+    if (email === 'demo@test.com' && password === 'demo123') {
   localStorage.setItem('nirvana_token', 'demo123')
   localStorage.setItem('nirvana_role',  'PATIENT')
   localStorage.setItem('nirvana_user',  JSON.stringify({ name:'Ankita', email:'demo@test.com' }))

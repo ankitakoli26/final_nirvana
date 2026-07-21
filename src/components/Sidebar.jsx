@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
   Home, Smile, BookOpen, MessageCircle,
-  BarChart2, MapPin, HandShake, LogOut,
+  BarChart2, MapPin, Handshake, LogOut,
   Stethoscope, Sparkles
 } from 'lucide-react'
 import useAuthStore from '../store/authStore'

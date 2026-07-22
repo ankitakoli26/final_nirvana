@@ -54,3 +54,5 @@ export const getMyDoctors  = ()            => API.get('/consent/patient/my-docto
 export const getMyPatients = ()            => API.get('/consent/doctor/my-patients')
 
 export default API 
+// Mood Prediction
+export const getMoodPrediction = () => API.get('/mood/prediction')

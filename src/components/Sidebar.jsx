@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import {
   Home, Smile, BookOpen, MessageCircle,
   BarChart2, MapPin, Handshake, LogOut,
-  Stethoscope, Sparkles
+  Stethoscope, Sparkles, Brain
 } from 'lucide-react'
 import useAuthStore from '../store/authStore'
 
@@ -12,6 +12,7 @@ const patientNav = [
   { to:'/patient/mood',      icon:Smile,         label:'Mood Tracker',    section:'main'    },
   { to:'/patient/journal',   icon:BookOpen,      label:'Journal',         section:'main'    },
   { to:'/patient/chat',      icon:MessageCircle, label:'AI Companion',    section:'ai'      },
+  { to:'/patient/insights',icon:Brain,         label:'Mood Insights',   section:'ai'      },
   { to:'/patient/wellness',  icon:BarChart2,     label:'Wellness Report', section:'ai'      },
   { to:'/patient/clinics',   icon:MapPin,        label:'Find Clinics',    section:'help'    },
   { to:'/patient/consent',   icon:Sparkles,      label:'My Doctors',      section:'help'    },

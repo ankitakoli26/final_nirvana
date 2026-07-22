@@ -1,3 +1,4 @@
+import Insights from './pages/Insights'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Login           from './pages/Login'
 import Register        from './pages/Register'
@@ -40,6 +41,7 @@ export default function App() {
         <Route path="/patient/wellness"  element={<PatientOnly><Report /></PatientOnly>} />
         <Route path="/patient/clinics"   element={<PatientOnly><Clinics /></PatientOnly>} />
         <Route path="/patient/consent"   element={<PatientOnly><Consent /></PatientOnly>} />
+        <Route path="/patient/insights"  element={<PatientOnly><Insights /></PatientOnly>} />
 
         <Route path="/doctor/dashboard"  element={<DoctorOnly><DoctorDashboard /></DoctorOnly>} />
 

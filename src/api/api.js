@@ -27,7 +27,7 @@ export const registerUser = (data) => API.post('/auth/register', data, { respons
 export const loginUser    = (data) => API.post('/auth/login',    data, { responseType: 'text' })
 
 // Mood
-export const logMood        = (data) => API.post('/mood', data)
+export const logMood        = (data) => API.post('/mood/log', data)
 export const getMoodHistory = ()     => API.get('/mood/history')
 export const deleteMood     = (id)   => API.delete(`/mood/${id}`)
 
@@ -55,4 +55,4 @@ export const getMyPatients = ()            => API.get('/consent/doctor/my-patien
 
 export default API 
 // Mood Prediction
-export const getMoodPrediction = () => API.get('/mood/prediction')
+export const getMoodPrediction = () => API.get('/mood/prediction/predict-mood')

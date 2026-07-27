@@ -60,11 +60,11 @@ export default function MoodLog() {
     if (!selected) { showToast('Please select a mood label!', 'error'); return }
     setLoading(true)
     try {
-      await logMood({ MoodScore:score, MoodLabel:selected, Note:note, LoggedAt:new Date().toISOString().slice(0,19) })
+      await logMood({ moodScore:score, moodLabel:selected, note:note, loggedAt:new Date().toISOString().slice(0,19) })
       showToast('Mood logged! 🌿')
       setNote(''); setSelected(''); setScore(5)
       loadHistory()
-    } catch {
+    } catch { 
       showToast('Mood saved (demo)! 🌿')
       setNote(''); setSelected(''); setScore(5)
       loadHistory()

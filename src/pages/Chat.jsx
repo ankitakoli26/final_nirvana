@@ -33,14 +33,15 @@ function formatText(text) {
 }
 
 export default function Chat() {
-  const { user }                    = useAuthStore()
-  const [messages,   setMessages]   = useState([])
-  const [input,      setInput]      = useState('')
-  const [loading,    setLoading]    = useState(false)
-  const [showSugg,   setShowSugg]   = useState(true)
-  const [crisis,     setCrisis]     = useState(false)
-  const bottomRef                   = useRef(null)
-  const inputRef                    = useRef(null)
+  const { user }                      = useAuthStore()
+  const [messages,     setMessages]   = useState([])
+  const [input,        setInput]      = useState('')
+  const [loading,      setLoading]    = useState(false)
+  const [showSugg,     setShowSugg]   = useState(true)
+  const [crisis,       setCrisis]     = useState(false)
+  const [showHistory,  setShowHistory]= useState(false)
+  const bottomRef                     = useRef(null)
+  const inputRef                      = useRef(null)
 
   const name     = user?.name || user?.username || 'Friend'
   const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
@@ -80,8 +81,8 @@ export default function Chat() {
     setMessages(prev => [...prev, userMsg])
     setLoading(true)
     try {
-      const res  = await sendMessage({ message:text })
-      const data = res.data
+      const res   = await sendMessage({ message:text })
+      const data  = res.data
       const reply = data.message || data.reply || 'I hear you. Tell me more.'
       const time  = data.sentAt
         ? new Date(data.sentAt).toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' })
@@ -104,6 +105,13 @@ export default function Chat() {
     }
   }
 
+  function clearChat() {
+    setMessages([])
+    setShowSugg(true)
+    setCrisis(false)
+    setShowHistory(false)
+  }
+
   return (
     <div className="flex min-h-screen"
       style={{ background:'linear-gradient(135deg, #060d1f 0%, #0a1628 50%, #0d1f3a 100%)' }}>
@@ -111,9 +119,9 @@ export default function Chat() {
 
       <main className="ml-64 flex-1 flex flex-col h-screen overflow-hidden">
 
-       {/* Header */}
+        {/* Header */}
         <motion.div
-          className="px-8 py-5 flex items-center justify-between flex-shrink-0 relative"
+          className="px-8 py-5 flex items-center justify-between flex-shrink-0"
           style={{ borderBottom:'1px solid rgba(255,255,255,0.06)', background:'rgba(6,13,31,0.8)', backdropFilter:'blur(20px)' }}
           initial={{ opacity:0, y:-20 }} animate={{ opacity:1, y:0 }}
         >
@@ -145,8 +153,6 @@ export default function Chat() {
           </div>
 
           <div className="flex items-center gap-3">
-
-            {/* History toggle button */}
             <motion.button
               onClick={() => setShowHistory(!showHistory)}
               className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium"
@@ -160,23 +166,21 @@ export default function Chat() {
             >
               🕐 {showHistory ? 'Hide History' : 'View History'}
               {messages.length > 0 && (
-                <span className="px-1.5 py-0.5 rounded-full text-xs font-bold"
+                <span className="px-1.5 py-0.5 rounded-full text-xs font-bold ml-1"
                   style={{ background:'rgba(58,175,169,0.3)', color:'#3AAFA9' }}>
                   {messages.length}
                 </span>
               )}
             </motion.button>
 
-            {/* Clear button */}
             <motion.button
-              onClick={() => { setMessages([]); setShowSugg(true); setCrisis(false); setShowHistory(false) }}
+              onClick={clearChat}
               className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium"
               style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.2)', color:'rgba(239,68,68,0.7)' }}
               whileHover={{ background:'rgba(239,68,68,0.2)', color:'#fca5a5' }}
             >
               <Trash2 size={13} /> Clear
             </motion.button>
-
           </div>
         </motion.div>
 
@@ -185,22 +189,20 @@ export default function Chat() {
           {showHistory && (
             <motion.div
               className="flex-shrink-0 overflow-y-auto"
-              style={{ maxHeight:'280px', borderBottom:'1px solid rgba(255,255,255,0.06)', background:'rgba(6,13,31,0.6)', backdropFilter:'blur(20px)' }}
+              style={{ maxHeight:'260px', borderBottom:'1px solid rgba(255,255,255,0.06)', background:'rgba(6,13,31,0.6)', backdropFilter:'blur(20px)' }}
               initial={{ height:0, opacity:0 }}
               animate={{ height:'auto', opacity:1 }}
               exit={{ height:0, opacity:0 }}
               transition={{ duration:0.3 }}
             >
               <div className="px-8 py-4">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-xs font-semibold uppercase tracking-widest"
-                    style={{ color:'rgba(168,216,200,0.6)' }}>
-                    🕐 Chat History — {messages.length} messages
-                  </span>
-                </div>
+                <p className="text-xs font-semibold uppercase tracking-widest mb-4"
+                  style={{ color:'rgba(168,216,200,0.6)' }}>
+                  🕐 Chat History — {messages.length} messages
+                </p>
 
                 {messages.length === 0 ? (
-                  <div className="text-center py-6">
+                  <div className="text-center py-4">
                     <div className="text-3xl mb-2 opacity-30">💬</div>
                     <p className="text-xs" style={{ color:'rgba(255,255,255,0.3)' }}>
                       No history yet. Start a conversation!
@@ -219,11 +221,8 @@ export default function Chat() {
                         animate={{ opacity:1, x:0 }}
                         transition={{ delay:i * 0.03 }}
                       >
-                        <div className="w-6 h-6 rounded-lg flex items-center justify-center text-xs flex-shrink-0"
-                          style={{
-                            background: msg.role === 'user' ? 'rgba(46,139,87,0.3)' : 'rgba(124,58,237,0.3)',
-                            color: 'white'
-                          }}>
+                        <div className="w-6 h-6 rounded-lg flex items-center justify-center text-xs flex-shrink-0 font-bold"
+                          style={{ background: msg.role === 'user' ? 'rgba(46,139,87,0.4)' : 'rgba(124,58,237,0.4)', color:'white' }}>
                           {msg.role === 'user' ? initials : '🤖'}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -250,32 +249,54 @@ export default function Chat() {
           )}
         </AnimatePresence>
 
-          {/* Messages */}
+        {/* Messages area */}
+        <div className="flex-1 overflow-y-auto px-8 py-6 flex flex-col gap-5">
+
+          {/* Welcome */}
+          {messages.length === 0 && (
+            <motion.div className="flex gap-3 max-w-2xl"
+              initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }}>
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
+                style={{ background:'linear-gradient(135deg, rgba(124,58,237,0.4), rgba(58,175,169,0.4))', border:'1px solid rgba(124,58,237,0.3)' }}>
+                🤖
+              </div>
+              <div>
+                <div className="px-5 py-4 rounded-3xl rounded-tl-lg text-sm leading-relaxed"
+                  style={{ background:'rgba(124,58,237,0.15)', border:'1px solid rgba(124,58,237,0.2)', color:'rgba(255,255,255,0.85)' }}>
+                  Hi <strong style={{ color:'#a8d8c8' }}>{name.split(' ')[0]}</strong>! 🌿 I'm your Nirvana AI Companion, powered by Gemini.
+                  <br /><br />
+                  I'm here to listen, support, and guide you through whatever you're feeling.
+                  <br /><br />
+                  <strong style={{ color:'#D9C7FF' }}>How are you feeling today?</strong>
+                </div>
+                <div className="text-xs mt-1.5 ml-1" style={{ color:'rgba(255,255,255,0.25)' }}>
+                  {getTime()}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Chat messages */}
           {messages.map((msg, i) => (
-            <motion.div
-              key={i}
+            <motion.div key={i}
               className={`flex gap-3 max-w-2xl ${msg.role === 'user' ? 'flex-row-reverse ml-auto' : ''}`}
               initial={{ opacity:0, y:15, scale:0.98 }}
               animate={{ opacity:1, y:0, scale:1 }}
               transition={{ duration:0.3 }}
             >
-              <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold flex-shrink-0 ${
-                msg.role === 'user'
-                  ? 'bg-gradient-to-br from-teal to-primary text-white'
-                  : ''
-              }`}
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold flex-shrink-0"
                 style={msg.role === 'ai' ? {
                   background:'linear-gradient(135deg, rgba(124,58,237,0.4), rgba(58,175,169,0.4))',
                   border:'1px solid rgba(124,58,237,0.3)'
                 } : {
-                  background:'linear-gradient(135deg, #2E8B57, #3AAFA9)'
+                  background:'linear-gradient(135deg, #2E8B57, #3AAFA9)',
+                  color:'white'
                 }}>
                 {msg.role === 'user' ? initials : '🤖'}
               </div>
 
               <div>
-                <div
-                  className="px-5 py-4 rounded-3xl text-sm leading-relaxed"
+                <div className="px-5 py-4 rounded-3xl text-sm leading-relaxed"
                   style={msg.role === 'user' ? {
                     background:'linear-gradient(135deg, rgba(46,139,87,0.25), rgba(58,175,169,0.2))',
                     border:'1px solid rgba(58,175,169,0.25)',
@@ -331,14 +352,12 @@ export default function Chat() {
               initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }}
             >
               {suggestions.map((s, i) => (
-                <motion.button
-                  key={s}
+                <motion.button key={s}
                   onClick={() => { setInput(s); setShowSugg(false); inputRef.current?.focus() }}
                   className="px-4 py-2 rounded-xl text-xs font-medium transition-all"
                   style={{ background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', color:'rgba(255,255,255,0.6)' }}
                   whileHover={{ background:'rgba(124,58,237,0.2)', borderColor:'rgba(124,58,237,0.4)', color:'#D9C7FF', y:-2 }}
-                  initial={{ opacity:0, y:10 }}
-                  animate={{ opacity:1, y:0 }}
+                  initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }}
                   transition={{ delay:i*0.06 }}
                 >
                   {s}
@@ -348,7 +367,7 @@ export default function Chat() {
           )}
         </AnimatePresence>
 
-        {/* Input area */}
+        {/* Input */}
         <motion.div
           className="px-8 py-5 flex gap-3 items-end flex-shrink-0"
           style={{ borderTop:'1px solid rgba(255,255,255,0.06)', background:'rgba(6,13,31,0.8)', backdropFilter:'blur(20px)' }}
@@ -361,16 +380,9 @@ export default function Chat() {
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKey}
               rows={1}
-              placeholder="Type your message... (Enter to send, Shift+Enter for new line)"
+              placeholder="Type your message... (Enter to send)"
               className="w-full px-5 py-3.5 rounded-2xl text-sm outline-none transition-all resize-none"
-              style={{
-                background:'rgba(255,255,255,0.06)',
-                border:'1.5px solid rgba(255,255,255,0.1)',
-                color:'white',
-                caretColor:'#a8d8c8',
-                maxHeight:'120px',
-                lineHeight:'1.5'
-              }}
+              style={{ background:'rgba(255,255,255,0.06)', border:'1.5px solid rgba(255,255,255,0.1)', color:'white', caretColor:'#a8d8c8', maxHeight:'120px', lineHeight:'1.5' }}
               onFocus={e => { e.target.style.borderColor='#7C3AED'; e.target.style.boxShadow='0 0 0 3px rgba(124,58,237,0.1)' }}
               onBlur={e  => { e.target.style.borderColor='rgba(255,255,255,0.1)'; e.target.style.boxShadow='none' }}
             />
@@ -379,12 +391,10 @@ export default function Chat() {
           <motion.button
             onClick={handleSend}
             disabled={loading || !input.trim()}
-            className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 relative overflow-hidden"
+            className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
             style={{
-              background: input.trim() && !loading
-                ? 'linear-gradient(135deg, #7C3AED, #3AAFA9)'
-                : 'rgba(255,255,255,0.08)',
-              border: '1px solid rgba(255,255,255,0.1)',
+              background: input.trim() && !loading ? 'linear-gradient(135deg, #7C3AED, #3AAFA9)' : 'rgba(255,255,255,0.08)',
+              border:'1px solid rgba(255,255,255,0.1)',
               cursor: loading || !input.trim() ? 'not-allowed' : 'pointer',
               boxShadow: input.trim() && !loading ? '0 4px 20px rgba(124,58,237,0.3)' : 'none'
             }}
@@ -392,11 +402,8 @@ export default function Chat() {
             whileTap={!loading && input.trim() ? { scale:0.9 } : {}}
           >
             {loading ? (
-              <motion.div
-                className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
-                animate={{ rotate:360 }}
-                transition={{ duration:0.8, repeat:Infinity, ease:'linear' }}
-              />
+              <motion.div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+                animate={{ rotate:360 }} transition={{ duration:0.8, repeat:Infinity, ease:'linear' }} />
             ) : (
               <Send size={16} color={input.trim() ? 'white' : 'rgba(255,255,255,0.3)'} />
             )}

@@ -111,7 +111,7 @@ export default function Chat() {
 
       <main className="ml-64 flex-1 flex flex-col h-screen overflow-hidden">
 
-        {/* Header */}
+       {/* Header */}
         <motion.div
           className="px-8 py-5 flex items-center justify-between flex-shrink-0 relative"
           style={{ borderBottom:'1px solid rgba(255,255,255,0.06)', background:'rgba(6,13,31,0.8)', backdropFilter:'blur(20px)' }}
@@ -139,49 +139,116 @@ export default function Chat() {
                   animate={{ opacity:[1,0.3,1] }}
                   transition={{ duration:2, repeat:Infinity }}
                 />
-                Online · Powered by Gemini AI · Aware of your moods
+                Online · Powered by Gemini AI
               </div>
             </div>
           </div>
 
-          <motion.button
-            onClick={() => { setMessages([]); setShowSugg(true); setCrisis(false) }}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium"
-            style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.2)', color:'rgba(239,68,68,0.7)' }}
-            whileHover={{ background:'rgba(239,68,68,0.2)', color:'#fca5a5' }}
-          >
-            <Trash2 size={13} /> Clear chat
-          </motion.button>
+          <div className="flex items-center gap-3">
+
+            {/* History toggle button */}
+            <motion.button
+              onClick={() => setShowHistory(!showHistory)}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium"
+              style={{
+                background: showHistory ? 'rgba(58,175,169,0.2)' : 'rgba(255,255,255,0.06)',
+                border: showHistory ? '1px solid rgba(58,175,169,0.4)' : '1px solid rgba(255,255,255,0.1)',
+                color: showHistory ? '#3AAFA9' : 'rgba(255,255,255,0.5)'
+              }}
+              whileHover={{ scale:1.05 }}
+              whileTap={{ scale:0.95 }}
+            >
+              🕐 {showHistory ? 'Hide History' : 'View History'}
+              {messages.length > 0 && (
+                <span className="px-1.5 py-0.5 rounded-full text-xs font-bold"
+                  style={{ background:'rgba(58,175,169,0.3)', color:'#3AAFA9' }}>
+                  {messages.length}
+                </span>
+              )}
+            </motion.button>
+
+            {/* Clear button */}
+            <motion.button
+              onClick={() => { setMessages([]); setShowSugg(true); setCrisis(false); setShowHistory(false) }}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium"
+              style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.2)', color:'rgba(239,68,68,0.7)' }}
+              whileHover={{ background:'rgba(239,68,68,0.2)', color:'#fca5a5' }}
+            >
+              <Trash2 size={13} /> Clear
+            </motion.button>
+
+          </div>
         </motion.div>
 
-        {/* Messages area */}
-        <div className="flex-1 overflow-y-auto px-8 py-6 flex flex-col gap-5">
-
-          {/* Welcome */}
-          {messages.length === 0 && (
+        {/* History panel */}
+        <AnimatePresence>
+          {showHistory && (
             <motion.div
-              className="flex gap-3 max-w-2xl"
-              initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }}
+              className="flex-shrink-0 overflow-y-auto"
+              style={{ maxHeight:'280px', borderBottom:'1px solid rgba(255,255,255,0.06)', background:'rgba(6,13,31,0.6)', backdropFilter:'blur(20px)' }}
+              initial={{ height:0, opacity:0 }}
+              animate={{ height:'auto', opacity:1 }}
+              exit={{ height:0, opacity:0 }}
+              transition={{ duration:0.3 }}
             >
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
-                style={{ background:'linear-gradient(135deg, rgba(124,58,237,0.4), rgba(58,175,169,0.4))', border:'1px solid rgba(124,58,237,0.3)' }}>
-                🤖
-              </div>
-              <div>
-                <div className="px-5 py-4 rounded-3xl rounded-tl-lg text-sm leading-relaxed"
-                  style={{ background:'rgba(124,58,237,0.15)', border:'1px solid rgba(124,58,237,0.2)', color:'rgba(255,255,255,0.85)' }}>
-                  Hi <strong style={{ color:'#a8d8c8' }}>{name.split(' ')[0]}</strong>! 🌿 I'm your Nirvana AI Companion, powered by Gemini.
-                  <br /><br />
-                  I'm here to listen, support, and guide you through whatever you're feeling. Everything you share with me stays between us.
-                  <br /><br />
-                  <strong style={{ color:'#D9C7FF' }}>How are you feeling today?</strong>
+              <div className="px-8 py-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-xs font-semibold uppercase tracking-widest"
+                    style={{ color:'rgba(168,216,200,0.6)' }}>
+                    🕐 Chat History — {messages.length} messages
+                  </span>
                 </div>
-                <div className="text-xs mt-1.5 ml-1" style={{ color:'rgba(255,255,255,0.25)' }}>
-                  {getTime()}
-                </div>
+
+                {messages.length === 0 ? (
+                  <div className="text-center py-6">
+                    <div className="text-3xl mb-2 opacity-30">💬</div>
+                    <p className="text-xs" style={{ color:'rgba(255,255,255,0.3)' }}>
+                      No history yet. Start a conversation!
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    {messages.map((msg, i) => (
+                      <motion.div key={i}
+                        className="flex items-start gap-3 p-3 rounded-xl"
+                        style={{
+                          background: msg.role === 'user' ? 'rgba(46,139,87,0.1)' : 'rgba(124,58,237,0.1)',
+                          border: msg.role === 'user' ? '1px solid rgba(46,139,87,0.2)' : '1px solid rgba(124,58,237,0.2)'
+                        }}
+                        initial={{ opacity:0, x:-10 }}
+                        animate={{ opacity:1, x:0 }}
+                        transition={{ delay:i * 0.03 }}
+                      >
+                        <div className="w-6 h-6 rounded-lg flex items-center justify-center text-xs flex-shrink-0"
+                          style={{
+                            background: msg.role === 'user' ? 'rgba(46,139,87,0.3)' : 'rgba(124,58,237,0.3)',
+                            color: 'white'
+                          }}>
+                          {msg.role === 'user' ? initials : '🤖'}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-0.5">
+                            <span className="text-xs font-semibold"
+                              style={{ color: msg.role === 'user' ? '#3AAFA9' : '#D9C7FF' }}>
+                              {msg.role === 'user' ? 'You' : 'AI'}
+                            </span>
+                            <span className="text-xs" style={{ color:'rgba(255,255,255,0.25)' }}>
+                              {msg.time}
+                            </span>
+                          </div>
+                          <p className="text-xs leading-relaxed truncate"
+                            style={{ color:'rgba(255,255,255,0.6)' }}>
+                            {msg.text.slice(0, 100)}{msg.text.length > 100 ? '...' : ''}
+                          </p>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
               </div>
             </motion.div>
           )}
+        </AnimatePresence>
 
           {/* Messages */}
           {messages.map((msg, i) => (

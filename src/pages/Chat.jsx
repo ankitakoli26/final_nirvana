@@ -46,7 +46,7 @@ export default function Chat() {
   const name     = user?.name || user?.username || 'Friend'
   const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
 
-  useEffect(() => {
+ useEffect(() => {
     getChatHistory()
       .then(res => {
         const history = Array.isArray(res.data) ? res.data : []
@@ -57,13 +57,13 @@ export default function Chat() {
             time: new Date(h.sentAt || Date.now())
               .toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' })
           }))
-          setMessages(mapped)
+          setMessages(mapped.reverse())
           setShowSugg(false)
         }
       })
       .catch(() => {})
   }, [])
-
+  
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior:'smooth' })
   }, [messages, loading])
